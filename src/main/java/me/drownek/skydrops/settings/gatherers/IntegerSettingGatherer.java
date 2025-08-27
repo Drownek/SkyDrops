@@ -2,12 +2,19 @@ package me.drownek.skydrops.settings.gatherers;
 
 import me.drownek.datagatherer.DataGatherer;
 import me.drownek.datagatherer.step.MsgStep;
+import me.drownek.skydrops.lang.LangConfig;
 import me.drownek.skydrops.settings.SettingValueGatherer;
 import org.bukkit.entity.Player;
 
 import java.util.concurrent.CompletableFuture;
 
 public class IntegerSettingGatherer implements SettingValueGatherer<Integer> {
+
+    private final LangConfig langConfig;
+
+    public IntegerSettingGatherer(LangConfig langConfig) {
+        this.langConfig = langConfig;
+    }
 
     @Override
     public CompletableFuture<Integer> gatherValue(Player player, Integer currentValue) {
@@ -16,7 +23,7 @@ public class IntegerSettingGatherer implements SettingValueGatherer<Integer> {
         DataGatherer.builder()
             .steps(
                 new MsgStep(
-                    "§eEnter integer value greater than 0. Current: §f" + currentValue,
+                    langConfig.enterInteger.with("{current}", currentValue).format(),
                     value -> future.complete(Integer.parseInt(value)),
                     input -> {
                         try {
@@ -26,7 +33,7 @@ public class IntegerSettingGatherer implements SettingValueGatherer<Integer> {
                             return false;
                         }
                     },
-                    "§cInvalid input! Please enter a number greater than 0."
+                    langConfig.integerSettingInvalidFormat.format()
                 )
             )
             .cancelAction(() -> future.complete(null))

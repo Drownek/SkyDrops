@@ -29,7 +29,6 @@ public class InGameSettingsCommand {
 
     @Execute(name = "settings")
     void settings(@Context Player player) {
-        TextUtil.message(player, "hi!3421321");
-        //        gui.open(player);
+        gui.open(player);
     }
 }

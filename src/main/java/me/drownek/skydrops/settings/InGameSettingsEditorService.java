@@ -1,80 +1,78 @@
 package me.drownek.skydrops.settings;
 
 import eu.okaeri.injector.annotation.Inject;
+import eu.okaeri.injector.annotation.PostConstruct;
 import me.drownek.platform.core.annotation.Component;
+import me.drownek.skydrops.lang.LangConfig;
 import me.drownek.skydrops.settings.gatherers.BooleanSettingGatherer;
 import me.drownek.skydrops.settings.gatherers.DurationSettingGatherer;
 import me.drownek.skydrops.settings.gatherers.IntegerSettingGatherer;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Component
 public class InGameSettingsEditorService {
 
-    private final Map<Class<?>, SettingValueGatherer<?>> gatherersByType;
+    private Map<Class<?>, SettingValueGatherer<?>> gatherersByType;
 
     private @Inject InGameSettingsConfig config;
+    private @Inject Logger logger;
+    private @Inject LangConfig langConfig;
 
-    public InGameSettingsEditorService() {
+    @PostConstruct
+    public void init() {
         Set<SettingValueGatherer<?>> gatherers = Set.of(
             new BooleanSettingGatherer(),
-            new DurationSettingGatherer(),
-            new IntegerSettingGatherer()
+            new DurationSettingGatherer(langConfig),
+            new IntegerSettingGatherer(langConfig)
         );
         gatherersByType = gatherers.stream()
             .collect(Collectors.toMap(SettingValueGatherer::getHandledType, gatherer -> gatherer));
-        System.out.println("gatherers = " + gatherers);
-        System.out.println("gatherersByType = " + gatherersByType);
     }
 
-    /**
-     * Starts editing a setting for a player
-     */
     public CompletableFuture<Void> startEditing(Player player, InGameSettingsType settingType) {
         SettingValueGatherer<?> gatherer = gatherersByType.get(settingType.getDefaultValue().getClass());
 
         if (gatherer == null) {
-            player.sendMessage("§cNo editor available for this setting type!");
+            langConfig.noEditorAvailable.sendTo(player);
             return CompletableFuture.completedFuture(null);
         }
 
-        // Close any open inventory
         player.closeInventory();
 
-        return gatherValueSafely(player, settingType, gatherer)
+        return gatherValue(player, settingType, gatherer)
             .thenAccept(newValue -> {
                 if (newValue != null) {
                     updateSettingValue(settingType, newValue);
-                    player.sendMessage("§aSetting '" + settingType.getName() + "' updated to: §f" +
-                        settingType.formatValue(newValue));
+                    langConfig.settingUpdated
+                        .with("{setting}", settingType.getName())
+                        .with("{to}", settingType.formatValue(newValue))
+                        .sendTo(player);
                 } else {
-                    player.sendMessage("§cSetting update cancelled.");
+                    langConfig.settingUpdateCancelled.sendTo(player);
                 }
             })
             .exceptionally(throwable -> {
-                System.err.println("Error in startEditing for setting " + settingType.name() + ": " + throwable.getMessage());
-                throwable.printStackTrace();
-                player.sendMessage("§cFailed to update setting: " + throwable.getMessage());
+                logger.log(Level.SEVERE, "Error in startEditing for setting " + settingType.name(), throwable);
+                langConfig.settingFailedUpdate.with("{msg}", throwable.getMessage()).sendTo(player);
                 return null;
             });
     }
 
-    private CompletableFuture<Object> gatherValueSafely(Player player, InGameSettingsType settingType, SettingValueGatherer<?> gatherer) {
+    private CompletableFuture<Object> gatherValue(Player player, InGameSettingsType settingType, SettingValueGatherer<?> gatherer) {
         try {
             Class<?> valueType = settingType.getDefaultValue().getClass();
-            System.out.println("valueType = " + valueType);
 
             Object currentValue = config.getValue(settingType, valueType);
-            System.out.println("currentValue = " + currentValue);
 
             @SuppressWarnings("unchecked")
             SettingValueGatherer<Object> rawGatherer = (SettingValueGatherer<Object>) gatherer;
-            System.out.println("rawGatherer = " + rawGatherer.getClass());
 
             return rawGatherer.gatherValue(player, currentValue);
         } catch (Exception e) {
@@ -84,9 +82,6 @@ public class InGameSettingsEditorService {
         }
     }
 
-    /**
-     * Updates a setting value in the config with type safety
-     */
     private void updateSettingValue(InGameSettingsType settingType, Object newValue) {
         try {
             config.setValue(settingType, newValue);
@@ -94,15 +89,6 @@ public class InGameSettingsEditorService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to update setting " + settingType.name(), e);
         }
-    }
-
-    /**
-     * Gets all setting types that have available editors
-     */
-    public Set<InGameSettingsType> getEditableSettings() {
-        return Arrays.stream(InGameSettingsType.values())
-            .filter(type -> gatherersByType.containsKey(type.getClass()))
-            .collect(Collectors.toSet());
     }
 
     public String getCurrentValueDisplay(InGameSettingsType settingType) {

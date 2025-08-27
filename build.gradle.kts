@@ -8,6 +8,9 @@ plugins {
 group = "me.drownek"
 version = "1.0-SNAPSHOT"
 
+val useLocal = project.hasProperty("useLocalLibrary") &&
+        project.property("useLocalLibrary").toString().toBoolean()
+
 repositories {
     mavenCentral()
     mavenLocal()
@@ -18,11 +21,18 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Drownek.light-platform:light-platform-bukkit:2.1.1")
-    implementation("me.drownek:data-gatherer-bukkit:2.0.1")
+    if (useLocal) {
+        implementation("me.drownek:light-platform-bukkit:2.1.2")
+        implementation("me.drownek:data-gatherer-bukkit:2.0.2")
+    } else {
+        implementation("com.github.Drownek.light-platform:light-platform-bukkit:2.1.1")
+        implementation("com.github.Drownek:data-gatherer-bukkit:2.0.2")
+    }
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
 
     implementation("de.rapha149.signgui:signgui:2.5.4")
+
+    compileOnly("com.github.decentsoftware-eu:decentholograms:2.8.5")
 
     /* lombok */
     val lombok = "1.18.32"
@@ -38,9 +48,10 @@ bukkit {
 
 tasks.shadowJar {
     archiveClassifier.set("")
-//    listOf(
-//        "de.rapha149.signgui"
-//    ).forEach { relocate(it, "me.drownek.skydrops.libs.$it") }
+    listOf(
+        "de.rapha149.signgui",
+        "net.kyori"
+    ).forEach { relocate(it, "me.drownek.skydrops.libs.$it") }
 }
 
 java {
@@ -56,9 +67,8 @@ tasks.withType<JavaCompile> {
 
 tasks.runServer {
     minecraftVersion("1.19.4")
-    javaLauncher = javaToolchains.launcherFor {
-        vendor = JvmVendorSpec.JETBRAINS
-        languageVersion = JavaLanguageVersion.of(21)
+    downloadPlugins {
+        url("https://github.com/DecentSoftware-eu/DecentHolograms/releases/download/2.9.6/DecentHolograms-2.9.6.jar")
     }
     jvmArgs(
         listOf(
@@ -72,7 +82,6 @@ tasks.runServer {
             "-XX:G1HeapRegionSize=4M",
             "-XX:+UseFastUnorderedTimeStamps",
             "-Dcom.mojang.eula.agree=true",
-            "-XX:+AllowEnhancedClassRedefinition"
         )
     )
 }

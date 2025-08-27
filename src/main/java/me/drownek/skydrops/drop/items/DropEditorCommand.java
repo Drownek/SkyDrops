@@ -17,6 +17,7 @@ import me.drownek.platform.bukkit.scheduler.PlatformScheduler;
 import me.drownek.skydrops.SkyDropsPlugin;
 import me.drownek.skydrops.lang.LangConfig;
 import me.drownek.util.ItemStackBuilder;
+import me.drownek.util.message.Formatter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -127,10 +128,7 @@ public class DropEditorCommand {
     private GuiItem createDropGuiItem(@NonNull DropItem dropItem, @NonNull GuiAction<InventoryClickEvent> action) {
         return ItemStackBuilder.of(dropItem.itemStack)
             .appendLore(
-                "&8---------------",
-                "&7Chance: &f" + dropItem.chance + "%",
-                "&eShift + Left Click to remove",
-                "&eLeft Click to edit chance"
+                langConfig.dropGuiLoreAddition.with("{chance}", dropItem.chance).format()
             )
             .asGuiItem(action);
     }

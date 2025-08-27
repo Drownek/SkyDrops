@@ -2,6 +2,7 @@ package me.drownek.skydrops.settings.gatherers;
 
 import me.drownek.datagatherer.DataGatherer;
 import me.drownek.datagatherer.step.MsgStep;
+import me.drownek.skydrops.lang.LangConfig;
 import me.drownek.skydrops.settings.SettingValueGatherer;
 import me.drownek.util.TimeUtil;
 import org.bukkit.entity.Player;
@@ -11,6 +12,12 @@ import java.util.concurrent.CompletableFuture;
 
 public class DurationSettingGatherer implements SettingValueGatherer<Duration> {
 
+    private final LangConfig langConfig;
+
+    public DurationSettingGatherer(LangConfig langConfig) {
+        this.langConfig = langConfig;
+    }
+
     @Override
     public CompletableFuture<Duration> gatherValue(Player player, Duration currentValue) {
         CompletableFuture<Duration> future = new CompletableFuture<>();
@@ -18,7 +25,7 @@ public class DurationSettingGatherer implements SettingValueGatherer<Duration> {
         DataGatherer.builder()
             .steps(
                 new MsgStep(
-                    "§eEnter duration (e.g., 1m30s, 5m, 2h, 1d). Current: §f" + TimeUtil.formatDuration(currentValue),
+                    langConfig.enterDuration.with("{current}", TimeUtil.formatDuration(currentValue)).format(),
                     value -> {
                         try {
                             Duration parsed = Duration.ofMillis(TimeUtil.timeFromString(value));
@@ -35,7 +42,7 @@ public class DurationSettingGatherer implements SettingValueGatherer<Duration> {
                             return false;
                         }
                     },
-                    "§cInvalid format! Use format like: 1m30s, 5m, 2h, 1d"
+                    langConfig.durationSettingInvalidFormat.format()
                 )
             )
             .cancelAction(() -> future.complete(null))
