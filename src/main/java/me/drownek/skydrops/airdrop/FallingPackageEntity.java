@@ -2,9 +2,12 @@ package me.drownek.skydrops.airdrop;
 
 import eu.okaeri.commons.RandomNumbers;
 import lombok.Getter;
+import lombok.Setter;
 import me.drownek.skydrops.drop.items.DropConfig;
+import me.drownek.util.LocationUtil;
 import me.drownek.util.RandomUtil;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
@@ -13,34 +16,41 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
 
 @Getter
 public class FallingPackageEntity extends PackageEntity {
     private final Plugin plugin;
     public final Location startLoc;
-    public final Location target;
     public ArmorStand armorStand;
     private final AirdropService airdropService;
     private final DropConfig dropConfig;
+    private @Setter int hp;
+    private final Block targetBlock;
+    private final AirdropConfig airdropConfig;
 
-    public FallingPackageEntity(final Plugin plugin, final Location loc, final Location target, AirdropService airdropService, DropConfig dropConfig) {
+    public FallingPackageEntity(final Plugin plugin, final Location loc, AirdropService airdropService, DropConfig dropConfig, int hp, AirdropConfig airdropConfig) {
         super(plugin);
         this.plugin = plugin;
-        this.target = target;
         this.airdropService = airdropService;
         this.dropConfig = dropConfig;
         this.armorStand = null;
-        this.startLoc = loc;
+        this.startLoc = LocationUtil.toCenter(loc);
+        this.hp = hp;
+        this.targetBlock = calculateTargetBlock();
+        this.airdropConfig = airdropConfig;
         this.summon();
     }
 
     @Override
     public void summon() {
-        Objects.requireNonNull(startLoc.getWorld(), "World is null");
-        this.armorStand = (ArmorStand) startLoc.getWorld().spawnEntity(startLoc, EntityType.ARMOR_STAND);
+        World world = Objects.requireNonNull(startLoc.getWorld());
+        this.armorStand = (ArmorStand) world.spawnEntity(startLoc, EntityType.ARMOR_STAND);
 
         armorStand.setVisible(false);
         //noinspection deprecation
@@ -60,17 +70,38 @@ public class FallingPackageEntity extends PackageEntity {
         v.setY(-(speed));
         armorStand.setVelocity(v);
 
-        int blockY = this.armorStand.getLocation().getBlockY();
-        int targetBlockY = target.getBlockY();
+        int armorStandBlockY = this.armorStand.getLocation().getBlockY();
+        Block targetBlock = getTargetBlock();
+        int targetBlockY = targetBlock.getY();
 
-        if (blockY == targetBlockY) {
-            airdropService.updateHologram();
+        if (armorStandBlockY == targetBlockY) {
+            airdropService.updateHologram(this);
             Bukkit.getScheduler().runTask(plugin, () -> {
-                target.getBlock().setType(Material.CHEST);
+                targetBlock.setType(Material.CHEST);
+
+                Chest chest = (Chest) targetBlock.getState();
 
                 dropConfig.dropItems.stream()
                     .filter(dropItem -> RandomNumbers.chance(dropItem.chance))
-                    .forEach(drop -> ((Chest) target.getBlock().getState()).getInventory().addItem(drop.itemStack));
+                    .forEach(drop -> {
+                        if (airdropConfig.randomizeItemSlots) {
+                            int size = chest.getInventory().getSize();
+                            int slot = RandomUtil.randomInteger(0, size);
+
+                            for (int i = 0; i < size; i++) {
+                                int s = (slot + i) % size;
+                                if (chest.getInventory().getItem(s) == null) {
+                                    chest.getInventory().setItem(s, drop.itemStack);
+                                    return;
+                                }
+                            }
+
+                            chest.getInventory().addItem(drop.itemStack);
+                        } else {
+                            chest.getInventory().addItem(drop.itemStack);
+                        }
+                    });
+
             });
             remove();
             return;
@@ -78,11 +109,30 @@ public class FallingPackageEntity extends PackageEntity {
 
         ++this.counter;
 
-        if (this.counter % 5 == 0 && ((this.armorStand.getLocation().getY() - target.getY()) > 3 || counter > 100)) {
+        if (this.counter % 5 == 0 && ((this.armorStand.getLocation().getY() - targetBlockY) > 3 || counter > 100)) {
             this.summonUpdateFireworks();
         }
 
         this.retick();
+    }
+
+    public Location getTarget() {
+        return LocationUtil.toCenter(getTargetBlock().getLocation());
+    }
+
+    private Block calculateTargetBlock() {
+        World world = Objects.requireNonNull(startLoc.getWorld());
+
+        int x = startLoc.getBlockX();
+        int z = startLoc.getBlockZ();
+
+        for (int y = startLoc.getBlockY(); y >= world.getMinHeight(); y--) {
+            Block block = world.getBlockAt(x, y, z);
+            if (!block.isEmpty()) {
+                return world.getBlockAt(x, y + 1, z);
+            }
+        }
+        return null;
     }
 
     @Override

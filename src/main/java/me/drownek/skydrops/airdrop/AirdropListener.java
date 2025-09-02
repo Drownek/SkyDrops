@@ -6,7 +6,10 @@ import me.drownek.platform.core.annotation.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -31,73 +34,60 @@ public class AirdropListener implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
-        if (airdropService.getAirDrop() == null) return;
-
-        if (event.getBlock().getLocation().clone().add(0.5, 0, 0.5).equals(airdropService.getAirDrop().getTarget())) {
+        Block block = event.getBlock();
+        if (airdropService.getAirDrops().stream().anyMatch(airDrop -> block.equals(airDrop.getTargetBlock()))) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void OnInteractAtEntity(PlayerInteractAtEntityEvent e) {
-        FallingPackageEntity airDrop = airdropService.getAirDrop();
-
-        if (airDrop == null) return;
-
-        if (e.getRightClicked().equals(airDrop.armorStand)) {
-            e.setCancelled(true);
+    public void onInteractAtEntity(PlayerInteractAtEntityEvent event) {
+        Entity rightClicked = event.getRightClicked();
+        if (airdropService.getAirDrops().stream().anyMatch(airDrop -> rightClicked.equals(airDrop.armorStand))) {
+            event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent event) {
-
-        if (event.getClickedBlock() == null) {
+        if (event.getClickedBlock() == null || event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
-
-        if (airdropService.getAirDrop() == null) {
-            return;
-        }
-
-        Location location1 = event.getClickedBlock().getLocation().clone().add(0.5, 0, 0.5);
-        Location target = airdropService.getAirDrop().getTarget();
-        if (!location1.equals(target)) {
-            return;
-        }
-
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
-            return;
-        }
-
         UUID playerUUID = event.getPlayer().getUniqueId();
+        Location clickedBlockLocation = event.getClickedBlock().getLocation();
+        World world = Objects.requireNonNull(clickedBlockLocation.getWorld());
 
-        if (airdropService.getHp() != 0) {
-            event.setCancelled(true);
-        } else {
-            scheduleChestRemoval();
-        }
+        airdropService.getAirDrops().forEach(airDrop -> {
+            Block targetBlock = airDrop.getTargetBlock();
+            if (!clickedBlockLocation.equals(targetBlock.getLocation())) {
+                return;
+            }
+            if (airDrop.getHp() != 0) {
+                event.setCancelled(true);
+            } else {
+                scheduleChestRemoval(airDrop);
+            }
+            if (!playersOnDelay.contains(playerUUID) && airDrop.getHp() > 0) {
+                world.playSound(clickedBlockLocation, Sound.ENTITY_BAT_TAKEOFF, 3.0F, 0.5F);
 
-        if (!playersOnDelay.contains(playerUUID) && airdropService.getHp() > 0) {
-            Location location = event.getClickedBlock().getLocation();
-            Objects.requireNonNull(location.getWorld()).playSound(location, Sound.ENTITY_BAT_TAKEOFF, 3.0F, 0.5F);
+                airDrop.setHp(airDrop.getHp() - 1);
 
-            airdropService.setHp(airdropService.getHp() - 1);
-
-            playersOnDelay.add(playerUUID);
-            scheduler.runLaterSync(() -> playersOnDelay.remove(playerUUID), 20L);
-            airdropService.updateHologram();
-        }
+                playersOnDelay.add(playerUUID);
+                scheduler.runLaterSync(() -> playersOnDelay.remove(playerUUID), 20L);
+                airdropService.updateHologram(airDrop);
+            }
+        });
     }
 
-    private void scheduleChestRemoval() {
+    private void scheduleChestRemoval(FallingPackageEntity fallingPackageEntity) {
         scheduler.runLaterSync(() -> {
-            Location target = airdropService.getAirDrop().getTarget();
-            Chest chest = (Chest) Objects.requireNonNull(target.getWorld()).getBlockAt(target).getState();
+            Location target = fallingPackageEntity.getTarget();
+            World world = Objects.requireNonNull(target.getWorld());
+            Chest chest = (Chest) world.getBlockAt(target).getState();
             if (chest.getInventory().isEmpty()) {
-                airdropService.removeAirdrop();
+                airdropService.removeAirdrop(fallingPackageEntity);
             } else {
-                scheduleChestRemoval();
+                scheduleChestRemoval(fallingPackageEntity);
             }
         }, 2 * 20L);
     }

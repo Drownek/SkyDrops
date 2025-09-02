@@ -21,7 +21,7 @@ import org.bukkit.plugin.Plugin;
 import java.time.Duration;
 
 @Command(name = "skydrops")
-@Permission("skydrops.ingame.settings")
+@Permission("skydrops.command.settings")
 public class InGameSettingsCommand {
 
     private @Inject InGameSettingsGui gui;

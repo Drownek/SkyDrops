@@ -1,7 +1,7 @@
 package me.drownek.skydrops.airdrop;
 
-import com.google.common.base.Preconditions;
 import eu.okaeri.injector.annotation.Inject;
+import lombok.Setter;
 import me.drownek.platform.bukkit.annotation.Scheduled;
 import me.drownek.skydrops.lang.LangConfig;
 import me.drownek.skydrops.settings.InGameSettingsConfig;
@@ -18,6 +18,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -30,7 +31,8 @@ public class AirdropTask extends BukkitRunnable {
     private @Inject AirdropConfig airdropConfig;
     private @Inject LangConfig langConfig;
 
-    private long lastDropTime = System.currentTimeMillis();
+    private @Setter @Nullable Location nextLocation;
+    private @Setter long lastDropTime = System.currentTimeMillis();
 
     public void run() {
         if (!inGameSettingsConfig.getValue(InGameSettingsType.AIRDROPS, Boolean.class)) {
@@ -52,7 +54,8 @@ public class AirdropTask extends BukkitRunnable {
 
         lastDropTime = System.currentTimeMillis();
 
-        Location location = getRandomLocation();
+        Location location = nextLocation == null ? getRandomLocation().add(0, 20, 0) : nextLocation;
+        nextLocation = null;
         airdropService.createAirdrop(location);
     }
 

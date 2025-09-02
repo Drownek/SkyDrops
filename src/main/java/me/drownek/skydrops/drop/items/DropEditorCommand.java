@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Command(name = "skydrops")
-@Permission("skydrops.edit.drops")
+@Permission("skydrops.command.editdrops")
 public class DropEditorCommand {
 
     private @Inject DropConfig dropConfig;

@@ -77,7 +77,7 @@ public class LangConfig extends OkaeriConfig {
             "  &7Gather your &bteam &7and &fcapture &7the airdrop!"
         )
     );
-    public String clickAction = "CLICK RIGHT";
+    public String clickAction = "&a&lCLICK RIGHT";
     public String airdropWillSpawn = "&7Airdrop will spawn in &f{TIME}";
 
     @Comment("───────────── Localization ─────────────")

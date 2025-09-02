@@ -7,4 +7,5 @@ import me.drownek.platform.core.annotation.Configuration;
 public class AirdropConfig extends OkaeriConfig {
 
     public String airdropsWorld = "world";
+    public boolean randomizeItemSlots = true;
 }
