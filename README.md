@@ -7,11 +7,27 @@ Plugin adding airdrops with modifiable loot and in-game configuration.
 Use `/skydrops settings` to configure all available settings with a simple GUI, no config needed.
 If you want to modify drops, use `/skydrops edit-drops`.
 
+## Commands
+
+| Command                                  | Permission                         | Description                                                  |
+|------------------------------------------|------------------------------------|--------------------------------------------------------------|
+| `/skydrops settings`                     | `skydrops.ingame.settings`         | Open the GUI to configure all plugin settings                |
+| `/skydrops edit-drops`                   | `skydrops.edit.drops`              | Open the GUI to modify airdrop loot                          |
+| `/skydrops reload`                       | `skydrops.command.reload`          | Reload all plugin configurations                             |
+| `/skydrops removedrops`                  | `skydrops.command.removedrops`     | Remove all active airdrops from the world                    |
+| `/skydrops spawn-drop <location>`        | `skydrops.command.spawndrop`       | Manually spawn an airdrop at the specified location          |
+| `/skydrops set-next-location <location>` | `skydrops.command.setnextlocation` | Set the location for the next scheduled airdrop              |
+
 ## Permissions
 
-`skydrops.ingame.settings` - Required permission to modify settings
-
-`skydrops.edit.drops` - Required permission to edit drops
+| Permission                         | Description                                              |
+|------------------------------------|----------------------------------------------------------|
+| `skydrops.command.editdrops`       | Allows editing airdrop loot through the GUI              |                                                          |
+| `skydrops.command.reload`          | Allows reloading plugin configurations                   |
+| `skydrops.command.removedrops`     | Allows removing all active airdrops from the world       |
+| `skydrops.command.spawndrop`       | Allows manually spawning airdrops at specified locations |
+| `skydrops.command.setnextlocation` | Allows setting the next airdrop location                 |
+| `skydrops.command.settings`        | Allows opening in-game GUI settings                      |
 
 ## Libraries used
 

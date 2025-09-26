@@ -43,6 +43,27 @@ bukkit {
     main = "me.drownek.skydrops.SkyDropsPlugin"
     apiVersion = "1.13"
     author = "Drownek"
+    depend = listOf("DecentHolograms")
+    permissions {
+        register("skydrops.command.editdrops") {
+            description = "Allows editing airdrop loot through the GUI"
+        }
+        register("skydrops.command.reload") {
+            description = "Allows reloading plugin configurations"
+        }
+        register("skydrops.command.removedrops") {
+            description = "Allows removing all active airdrops from the world"
+        }
+        register("skydrops.command.spawndrop") {
+            description = "Allows manually spawning airdrops at specified locations"
+        }
+        register("skydrops.command.setnextlocation") {
+            description = "Allows setting the next airdrop location"
+        }
+        register("skydrops.command.settings") {
+            description = "Allows opening in-game GUI settings"
+        }
+    }
 }
 
 tasks.shadowJar {
@@ -71,7 +92,7 @@ tasks.shadowJar {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
@@ -82,7 +103,7 @@ tasks.withType<JavaCompile> {
 
 val runVersions = mapOf(
     "1.18.2" to 17,
-    "1.19.4" to 19,
+    "1.19.4" to 17,
     "1.20.6" to 21,
     "1.21.5" to 21,
     "1.21.6" to 21,
@@ -90,7 +111,7 @@ val runVersions = mapOf(
 )
 
 tasks {
-    val randomPort = false
+    val randomPort = true
     val port = 25566
 
     runVersions.forEach { (key, value) ->
@@ -106,7 +127,7 @@ tasks {
                 url("https://github.com/DecentSoftware-eu/DecentHolograms/releases/download/2.9.6/DecentHolograms-2.9.6.jar")
                 url("https://github.com/ViaVersion/ViaVersion/releases/download/5.4.2/ViaVersion-5.4.2.jar")
                 url("https://github.com/ViaVersion/ViaBackwards/releases/download/5.4.2/ViaBackwards-5.4.2.jar")
-                url("https://github.com/Test-Account666/PlugManX/releases/download/v3.0.2/PlugManX-3.0.2.jar")
+                url("https://github.com/Test-Account666/PlugManX/releases/download/2.4.1/PlugManX-2.4.1.jar")
             }
 
             val runDir = layout.projectDirectory.dir("run$n")

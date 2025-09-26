@@ -54,8 +54,6 @@ public class InGameSettingsEditorService {
                         .with("{setting}", settingType.getName())
                         .with("{to}", settingType.formatValue(newValue))
                         .sendTo(player);
-                } else {
-                    langConfig.settingUpdateCancelled.sendTo(player);
                 }
             })
             .exceptionally(throwable -> {

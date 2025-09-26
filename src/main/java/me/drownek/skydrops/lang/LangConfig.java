@@ -26,7 +26,6 @@ public class LangConfig extends OkaeriConfig {
     @Comment("───────────── General Messages ─────────────")
     public SendableMessage noEditorAvailable = SendableMessage.of("§cNo editor available for this setting type!");
     public SendableMessage settingUpdated = SendableMessage.of("§aSetting '{setting}' updated to: §f{to}");
-    public SendableMessage settingUpdateCancelled = SendableMessage.of("§cSetting update cancelled.");
     public SendableMessage settingFailedUpdate = SendableMessage.of("§cFailed to update setting: {msg}");
     public SendableMessage settingsReset = SendableMessage.of("§aAll settings have been reset to their defaults!");
     public SendableMessage reloadConfigSuccess = SendableMessage.of("&aConfig has been reloaded successfully!");
