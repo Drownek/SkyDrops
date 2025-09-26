@@ -14,9 +14,6 @@ plugins {
 group = "me.drownek"
 version = "1.0"
 
-val useLocal = project.hasProperty("useLocalLibrary") &&
-        project.property("useLocalLibrary").toString().toBoolean()
-
 repositories {
     mavenCentral()
     mavenLocal()
@@ -27,13 +24,9 @@ repositories {
 }
 
 dependencies {
-    if (useLocal) {
-        implementation("me.drownek:light-platform-bukkit:2.1.2")
-        implementation("me.drownek:data-gatherer-bukkit:2.0.2")
-    } else {
-        implementation("com.github.Drownek.light-platform:light-platform-bukkit:2.1.1")
-        implementation("com.github.Drownek:data-gatherer-bukkit:2.0.2")
-    }
+    implementation("com.github.Drownek.light-platform:light-platform-bukkit:2.1.1-beta2")
+    implementation("com.github.Drownek:data-gatherer-bukkit:2.0.2")
+
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
 
     implementation("de.rapha149.signgui:signgui:2.5.4")
@@ -78,7 +71,7 @@ tasks.shadowJar {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
@@ -86,9 +79,6 @@ tasks.withType<JavaCompile> {
     options.compilerArgs.add("-parameters")
     options.encoding = "UTF-8"
 }
-
-val randomPort = true
-val port = 25566
 
 val runVersions = mapOf(
     "1.18.2" to 17,
@@ -100,7 +90,10 @@ val runVersions = mapOf(
 )
 
 tasks {
-    runVersions.forEach { key, value ->
+    val randomPort = false
+    val port = 25566
+
+    runVersions.forEach { (key, value) ->
         val n = key.replace(".", "_")
         register("run$n", RunServer::class) {
             minecraftVersion(key)
@@ -109,9 +102,11 @@ tasks {
             jvmArgs("-Dcom.mojang.eula.agree=true")
 
             downloadPlugins {
+                url("https://ci.lucko.me/job/spark/494/artifact/spark-bukkit/build/libs/spark-1.10.144-bukkit.jar")
                 url("https://github.com/DecentSoftware-eu/DecentHolograms/releases/download/2.9.6/DecentHolograms-2.9.6.jar")
                 url("https://github.com/ViaVersion/ViaVersion/releases/download/5.4.2/ViaVersion-5.4.2.jar")
                 url("https://github.com/ViaVersion/ViaBackwards/releases/download/5.4.2/ViaBackwards-5.4.2.jar")
+                url("https://github.com/Test-Account666/PlugManX/releases/download/v3.0.2/PlugManX-3.0.2.jar")
             }
 
             val runDir = layout.projectDirectory.dir("run$n")
@@ -140,12 +135,12 @@ tasks {
                     serverPropertiesFile.inputStream().use { load(it) }
                 }
 
-                val port = if (randomPort) (20000..40000).random() else port
-                props["server-port"] = port.toString()
+                val actualPort = if (randomPort) (20000..40000).random() else port
+                props["server-port"] = actualPort.toString()
 
                 serverPropertiesFile.outputStream().use { props.store(it, null) }
 
-                println(">> Starting server $key on port $port")
+                println(">> Starting server $key on port $actualPort")
             }
         }
     }

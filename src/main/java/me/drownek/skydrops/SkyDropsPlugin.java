@@ -4,6 +4,7 @@ import me.drownek.platform.bukkit.LightBukkitPlugin;
 import me.drownek.platform.core.annotation.Scan;
 import me.drownek.platform.core.plan.ExecutionPhase;
 import me.drownek.platform.core.plan.Planned;
+import me.drownek.skydrops.airdrop.AirdropService;
 import me.drownek.skydrops.lang.LangConfig;
 
 import java.util.Locale;

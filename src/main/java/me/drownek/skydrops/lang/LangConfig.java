@@ -29,6 +29,8 @@ public class LangConfig extends OkaeriConfig {
     public SendableMessage settingUpdateCancelled = SendableMessage.of("§cSetting update cancelled.");
     public SendableMessage settingFailedUpdate = SendableMessage.of("§cFailed to update setting: {msg}");
     public SendableMessage settingsReset = SendableMessage.of("§aAll settings have been reset to their defaults!");
+    public SendableMessage reloadConfigSuccess = SendableMessage.of("&aConfig has been reloaded successfully!");
+    public SendableMessage reloadConfigError = SendableMessage.of("&cAn error occurred while reloading configuration, please check console logs!");
 
     @Comment("───────────── Drop Editor ─────────────")
     public SendableMessage wrongChance = SendableMessage.of("&cWrong chance!");

@@ -15,6 +15,6 @@ public class DropService {
     public Optional<DropItem> getDropItem(@NonNull ItemStack itemStack) {
         return dropConfig.dropItems.stream()
             .filter(dropItem -> dropItem.itemStack.equals(itemStack))
-            .findAny();
+            .findFirst();
     }
 }

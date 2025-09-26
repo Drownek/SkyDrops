@@ -3,26 +3,21 @@ package me.drownek.skydrops.airdrop;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
+public abstract class PackageEntity {
 
-public class PackageEntity {
     protected int counter;
     private final Plugin plugin;
 
-    public PackageEntity(Plugin plugin) {
+    protected PackageEntity(Plugin plugin) {
         this.counter = 0;
         this.plugin = plugin;
     }
 
-    public void summon() {
-    }
+    public abstract void summon();
 
-    public void remove() {
-    }
+    protected abstract void tick();
 
-    protected void tick() {
-    }
-
-    protected void retick() {
-        Bukkit.getServer().getScheduler().runTaskLater(plugin, PackageEntity.this::tick, 1L);
+    protected final void retick() {
+        Bukkit.getServer().getScheduler().runTaskLater(plugin, this::tick, 1L);
     }
 }
