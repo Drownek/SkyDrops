@@ -19,5 +19,8 @@ jobs:
           distribution: corretto
           java-version: 17
 
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
       - name: Verify build
         run: ./gradlew clean build
