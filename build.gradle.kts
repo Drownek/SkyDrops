@@ -30,6 +30,8 @@ dependencies {
 
     compileOnly("com.github.decentsoftware-eu:decentholograms:2.8.5")
 
+    implementation("org.bstats:bstats-bukkit:3.0.2")
+
     /* lombok */
     val lombok = "1.18.32"
     compileOnly("org.projectlombok:lombok:$lombok")
@@ -80,7 +82,8 @@ tasks.shadowJar {
 
     listOf(
         "de.rapha149.signgui",
-        "net.kyori"
+        "net.kyori",
+        "org.bstats"
     ).forEach { relocate(it, "me.drownek.skydrops.libs.$it") }
 
     /* Fail as it wont work on server versions with plugin remapping */

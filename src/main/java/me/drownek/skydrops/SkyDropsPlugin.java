@@ -6,6 +6,7 @@ import me.drownek.platform.core.plan.ExecutionPhase;
 import me.drownek.platform.core.plan.Planned;
 import me.drownek.skydrops.airdrop.AirdropService;
 import me.drownek.skydrops.lang.LangConfig;
+import org.bstats.bukkit.Metrics;
 
 import java.util.Locale;
 
@@ -22,5 +23,7 @@ public class SkyDropsPlugin extends LightBukkitPlugin {
     void postSetup(LangConfig langConfig) {
         langConfig.utilsLocale.forEach(me.drownek.util.localization.LocalizationManager::setMessage);
         langConfig.gathererLocale.forEach(me.drownek.datagatherer.localization.LocalizationManager::setMessage);
+
+        new Metrics(this, 27384);
     }
 }
