@@ -1,11 +1,18 @@
 # SkyDrops
-[![Modrinth](https://img.shields.io/badge/Available_on-Modrinth-light_green)](https://modrinth.com/plugin/staffactivitymonitor/) [![SpigotMC](https://img.shields.io/badge/Available_on-SpigotMC-orange)](https://www.spigotmc.org/resources/staffactivitymonitor.126807/)
+[![Modrinth](https://img.shields.io/badge/Available_on-Modrinth-light_green)]() [![SpigotMC](https://img.shields.io/badge/Available_on-SpigotMC-orange)]()
+
+<img src="https://i.imgur.com/UF84Y7r.gif" width="400" height="225"/>
 
 Plugin adding airdrops with modifiable loot and in-game configuration.
 
-## Usage
-Use `/skydrops settings` to configure all available settings with a simple GUI, no config needed.
-If you want to modify drops, use `/skydrops edit-drops`.
+## Quick Start
+
+1. Download the plugin from [Modrinth]() or [SpigotMC]()
+2. Install [DecentHolograms](https://www.spigotmc.org/resources/decentholograms-1-8-1-21-8-papi-support-no-dependencies.96927/) plugin if you haven't already (required for holograms)
+3. Drop the JAR file into your server's `plugins` folder
+4. Restart your server
+5. Run `/skydrops settings` to configure the plugin
+6. Use `/skydrops edit-drops` to customize your loot tables
 
 ## Commands
 

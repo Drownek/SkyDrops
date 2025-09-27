@@ -1,8 +1,5 @@
-import org.gradle.kotlin.dsl.register
 import xyz.jpenilla.runpaper.task.RunServer
-import java.util.Properties
-import kotlin.apply
-import kotlin.collections.set
+import java.util.*
 
 plugins {
     id("java")
@@ -12,7 +9,7 @@ plugins {
 }
 
 group = "me.drownek"
-version = "1.0"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -24,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.Drownek.light-platform:light-platform-bukkit:2.1.1-beta2")
+    implementation("com.github.Drownek.light-platform:light-platform-bukkit:2.2.0")
     implementation("com.github.Drownek:data-gatherer-bukkit:2.0.2")
 
     compileOnly("org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT")
@@ -110,10 +107,10 @@ val runVersions = mapOf(
     "1.21.7" to 21,
 )
 
-tasks {
-    val randomPort = true
-    val port = 25566
+val randomPort = true
+val defaultPort = 25566
 
+tasks {
     runVersions.forEach { (key, value) ->
         val n = key.replace(".", "_")
         register("run$n", RunServer::class) {
@@ -156,7 +153,7 @@ tasks {
                     serverPropertiesFile.inputStream().use { load(it) }
                 }
 
-                val actualPort = if (randomPort) (20000..40000).random() else port
+                val actualPort = if (randomPort) (20000..40000).random() else defaultPort
                 props["server-port"] = actualPort.toString()
 
                 serverPropertiesFile.outputStream().use { props.store(it, null) }
