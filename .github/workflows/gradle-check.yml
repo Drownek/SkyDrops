@@ -3,7 +3,7 @@ name: Gradle Build Check
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -18,6 +18,9 @@ jobs:
         with:
           distribution: corretto
           java-version: 17
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
 
       - name: Verify build
         run: ./gradlew clean build
