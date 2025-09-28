@@ -1,11 +1,10 @@
 <div align="center">
-  
 
 # SkyDrops
 
-[](https://www.spigotmc.org/resources/skydrops.129111/)
-
 A custom airdrops for your Minecraft server!
+
+[![Modrinth](https://img.shields.io/badge/Available_on-Modrinth-light_green)](https://modrinth.com/plugin/skydrops) [![SpigotMC](https://img.shields.io/badge/Available_on-SpigotMC-orange)](https://www.spigotmc.org/resources/skydrops.129111/)
 
 <img src="https://i.imgur.com/Ncs73SN.png" alt="Airdrop landing with a particle effect" />
 

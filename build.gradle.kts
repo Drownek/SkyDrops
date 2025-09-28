@@ -83,7 +83,14 @@ tasks.shadowJar {
     listOf(
         "de.rapha149.signgui",
         "net.kyori",
-        "org.bstats"
+        "org.bstats",
+        "com.cryptomorin",
+        "com.google",
+        "dev.rollczi",
+        "dev.triumphteam",
+        "eu.okaeri",
+        "me.drownek.platform",
+        "me.drownek.datagatherer"
     ).forEach { relocate(it, "me.drownek.skydrops.libs.$it") }
 
     /* Fail as it wont work on server versions with plugin remapping */

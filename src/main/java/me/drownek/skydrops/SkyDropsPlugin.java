@@ -24,6 +24,6 @@ public class SkyDropsPlugin extends LightBukkitPlugin {
         langConfig.utilsLocale.forEach(me.drownek.util.localization.LocalizationManager::setMessage);
         langConfig.gathererLocale.forEach(me.drownek.datagatherer.localization.LocalizationManager::setMessage);
 
-        new Metrics(this, 27384);
+        new Metrics(this, 27386);
     }
 }
